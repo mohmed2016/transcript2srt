@@ -1,0 +1,829 @@
+00:00:00 - Ultra cool topic, path control. We're going to talk about how to configure
+00:00:05 - path control, what, what the power of path control really
+00:00:08 - means to you, and then we'll set it up in a GNS3 lab which I actually
+00:00:12 - had a lot of fun creating and doing, just, and, and testing
+00:00:16 - using path control how, you know, how you can use it for your environment
+00:00:19 - and all that sort of stuff. But before we get started, I have to, I have to
+00:00:23 - tell some stories and it's okay if you don't want to hear my stories.
+00:00:25 - You can fast-forward. But it's actually been a, a long time since
+00:00:29 - I recorded the last nugget in this series. I took about a two-week
+00:00:32 - hiatus to go up to Cisco Live. Cisco actually flies
+00:00:37 - me up there once a year to just do a little presentation on something
+00:00:41 - and this year was on CCNA Voice. And it was, it was fun because there was
+00:00:44 - about 250 people there. It's just packed with a bunch of people.
+00:00:48 - And I talked, talked about CCNA Voice and actually structured around
+00:00:51 - how to set up voice-over-IP for your house and then kind of bridge
+00:00:53 - that to the business world. It was, it's just a lot of fun.
+00:00:56 - But afterwards so many people came up and were like, hey, I've been
+00:01:00 - listening to your nuggets for years and all that good stuff. It was just,
+00:01:04 - it was very cool to me, a bunch of people that, that had been listening to CBT Nuggets,
+00:01:07 - and if, if you're one of those, it was great to meet you.
+00:01:10 - It was a fun time. So anyway, my, my story is actually there
+00:01:14 - was a guy who came up and shook my hand and handed me a box
+00:01:17 - of Nutter Butters. And I was kind of like,
+00:01:22 - ah, I can't take your cookies, man. But, but nonetheless, he actually said,
+00:01:25 - well, in one of your series, I don't even remember what, what series
+00:01:28 - it was, he is like, you said that Nutter Butters were your favorite cookie,
+00:01:31 - which is true. And so, so this guy actually brought some Nutter Butters
+00:01:34 - from wherever he flew in, flew in from to the presentation,
+00:01:38 - which I thought was amazing. So, so it was fun. That, that's my story.
+00:01:41 - Actually I have another story. This morning I was Rollerblading
+00:01:43 - and I have, I have the iPhone 4, which I was very excited.
+00:01:47 - I stood in line. It was, it was a terribly geeky thing to do but I
+00:01:51 - got this phone. And, and so I'm Rollerblading and I have it strapped to
+00:01:54 - my arm and at literally two days old. I'm Rollerblading and I'm kind of like,
+00:01:59 - you know, if you've ever Rollerbladed, your arms get really into it.
+00:02:02 - I'm wiggling my arms back and forth and the little thing that
+00:02:05 - straps it to my arm was actually made for an older iPhone and my, my
+00:02:09 - newer one is, is slippery or something. I don't know. And it is
+00:02:12 - literally shot out as I'm, as I'm Rollerblading, flies through the air,
+00:02:16 - hits the asphalt, slides across the asphalt into a pile
+00:02:21 - of rocks, and literally, I, you know, err, stopped on the Roller blades and I'm like
+00:02:25 - I cannot believe that just happened. I just totally dropped my new iPhone.
+00:02:29 - I picked the thing up
+00:02:30 - and there's a scratch on, there's, there's like a little metal
+00:02:34 - bar around the whole thing. It actually is the antenna that caused all kind
+00:02:37 - of controversy and all that. But anyway, there's a tiny scratch around
+00:02:40 - the antenna. The, the front and back which are completely this
+00:02:43 - plastic glass composite whatever, totally unscathed, and I'm thinking this is
+00:02:49 - the most amazing. Like I wanted to throw it across the asphalt
+00:02:51 - again but I didn't just to see it happen again because that was,
+00:02:55 - if you would have seen that you would have just thought this,
+00:02:57 - this phone is done. There's, you won't be able to even see the display.
+00:03:00 - So, so kudos to Apple. Yay! That's, that's my, that's my stories
+00:03:03 - for the day.
+00:03:05 - Now, I know some of you are thinking, man, next time Jeremy says I have a story,
+00:03:09 - I'm totally fast-forwarding. But nonetheless, that's just my
+00:03:12 - interesting events the last couple of days I had to share with somebody. So let's now
+00:03:16 - get into policy routing and what policy routing is all about.
+00:03:20 - Policy routing is the best way I could think of it was
+00:03:23 - a programming language of routing tables to where you get to
+00:03:26 - say exactly what happens to what packets. Now, I know some of you
+00:03:30 - like me are like I, I don't like programming. Trust me, it's not
+00:03:34 - that kind of programming. If you can understand if-then statements
+00:03:38 - which anybody who's dealt with a batch file in their previous
+00:03:41 - life can understand that. And if you, if you haven't seen any
+00:03:45 - programming, don't worry, it's not bad. Essentially you define
+00:03:49 - a series of if-then statements for how a router routes packets
+00:03:54 - and the router will do it. You can apply it to an interface.
+00:03:57 - You can apply it to any kind of traffic going through
+00:04:00 - your router. So here's the idea. Let's say I wanted, I wanted
+00:04:04 - this PC to always go that route, to use that ISP,
+00:04:08 - and this PC to go this route to use this ISP. Perfect solution
+00:04:12 - for policy routing. Because normally without policy routing
+00:04:16 - the router refers to its routing table with no indifference
+00:04:20 - to client, to where no matter who you are, when you come through,
+00:04:23 - I look at my routing table and decide where you go. So when
+00:04:26 - you want to get selective, whether it be, you know, this VUN
+00:04:30 - goes that direction or my PC uses the faster Internet connection,
+00:04:33 - what, whatever you want to do, that's, that's all capable
+00:04:37 - using policy routing. So the way I'd like to show this to you
+00:04:41 - is by walking through a GNS3 lab. Now, some of you may have
+00:04:44 - tried this already on your own and, and have been like, okay, I want to
+00:04:48 - see the solution. Some of you may be coming here for the first
+00:04:50 - time wanting to learn policy routing. Either group of people,
+00:04:53 - you're going to, you're going to look at this GNS3 lab to see what it does by the
+00:04:56 - statements that the lab is making and, and what it's calling
+00:04:59 - you to do and then you'll see how to implement it.
+00:05:02 - So let's get going. I'm going to bring up the policy-based routing lab
+00:05:07 - which you can see uses the same topology as you just saw on the
+00:05:10 - slide a moment ago. Right below it is the objectives. I'd like to scroll through
+00:05:14 - these with you and that will really demonstrate what policy routing
+00:05:17 - is able to do and where kind of areas you would want to use
+00:05:20 - this sort of thing. So it starts off your organization is implementing
+00:05:23 - a dual ISP setup, right here, that needs to be tightly controlled.
+00:05:27 - They have requested the following parameters. Client 1 surfs the
+00:05:31 - Internet all day doing nothing productive. And now, you might look
+00:05:35 - at that going, okay, well, what organization would have that?
+00:05:38 - Well, I'm telling you, you may work for one of those organizations.
+00:05:42 - It's that guy in the cubicle, you always walk by him, and he's
+00:05:45 - always playing some online game on the Internet, and then you're
+00:05:48 - like, what do you do here? Why does nobody look at you, at your
+00:05:51 - job description and say, that guy is just not necessary, although, although
+00:05:55 - maybe, maybe that's you.
+00:05:57 - Maybe you're the guy that plays online games. I know, I know places I've gone,
+00:06:00 - every time there's this, there's this guy I'm thinking of. Every time I walk by his cubicle,
+00:06:03 - seriously, online card games is all he did, all. There was
+00:06:07 - nothing else on his screen. I'm like, can somebody control
+00:06:10 - that guy? So anyway, if it's that guy, all traffic from that client
+00:06:13 - should route out to ISP2 which is a slower Internet connection.
+00:06:17 - If ISP2 is down, the Client 1 should not be able
+00:06:20 - to access the Internet because obviously he does nothing of
+00:06:22 - interest anyway.
+00:06:24 - Client 2 handles the more sophisticated transactions. Both Telnet
+00:06:28 - and HTTP traffic should route towards ISP1 because
+00:06:31 - those are our key traffic which is the more reliable connection.
+00:06:35 - All other traffic from Client 2 should route out to ISP2.
+00:06:38 - Now, you're seeing what policy routing is able to do. Not only can
+00:06:42 - I say Client 1 always uses ISP2 Internet connection period,
+00:06:47 - he doesn't have any redundancy, but Client 2 I'll
+00:06:50 - say some traffic from, maybe the more interesting
+00:06:54 - traffic or, you know. Important traffic, that's the words I'm looking for,
+00:06:58 - needs to go through the more reliable ISP.
+00:07:01 - So I want to stop right here before we, you know, continue with this lab and think about
+00:07:05 - the applications for your environment. I mean think about it this way.
+00:07:08 - Maybe you've got database backups or database transactions
+00:07:13 - that, that are very important and you want to make sure they
+00:07:17 - get there that you want to route out a more reliable WAN connection
+00:07:20 - whereas you have a DSL or a cable modem connection where
+00:07:23 - everybody else has, is doing, you know, web surfing and things
+00:07:27 - like that. I'm telling you this is a very common thing that people
+00:07:30 - have had me set up to where, I'm just thinking of an organization
+00:07:34 - right now where they have T1 line, you know, nowadays
+00:07:36 - not much bandwidth there, 1.5 meg. But that T1 line
+00:07:40 - never goes down. It's one of the most reliable connections
+00:07:43 - the organization has. They use that for all of their exchange traffic.
+00:07:46 - All their email traffic goes in and goes out of that connection
+00:07:49 - because that's critical. However, they actually have, and I didn't
+00:07:52 - even know that such a device existed. They actually have a device,
+00:07:56 - I can't even remember who makes it now, that bonds three DSL connections.
+00:08:00 - Actually it bonds four but they have three. It kind of load balances
+00:08:04 - across three DSL connections and they say everything else for
+00:08:07 - the, for the network, you know, Internet surfing, streaming radio,
+00:08:10 - all the other junk that is on the network goes out those DSL
+00:08:13 - connections which are not as reliable. However, you know,
+00:08:17 - for normal web surfing that's, that's fine by me. So this is,
+00:08:20 - this is what policy routing is able to do. So it says,
+00:08:23 - you know, outside of these two traffic types, all other traffic
+00:08:26 - should go to ISP2.
+00:08:28 - Traffic from other clients, not shown in this diagram, you know, Client 3, 4, 5, 6
+00:08:32 - and so on should all route to ISP2. ISP1 should
+00:08:35 - be reserved for just the critical stuff. Now here's, here's the unique one.
+00:08:39 - And if if you did this lab before and didn't get this one,
+00:08:43 - I wouldn't blame you. I just threw this one in there for fun. It's, it's
+00:08:46 - a very cool configuration. Traffic originating from the
+00:08:50 - policy routing, router, this guy in the middle, should prefer ISP1
+00:08:54 - but should fail over to ISP2 should ISP1 be unavailable.
+00:08:58 - Verify ISP1 is available. Here is the difficult part,
+00:09:02 - using proactive testing techniques. I made, I made that nice and big.
+00:09:05 - Now, I will tell you, if you're a certification study, you're
+00:09:09 - most likely not going to see something like, like this on the certification exam.
+00:09:13 - You never know, it could be there, but this I would say is
+00:09:17 - a pretty advanced thing to do.
+00:09:20 - It's not too hard, just advanced. Okay. So the last thing it says to accomplish
+00:09:24 - these objectives you can create no more than two route maps
+00:09:27 - and three access lists. Okay, so let's, let's now go, go to
+00:09:31 - the drawing board with this.
+00:09:33 - Client 1 surfs the Internet all day doing nothing.
+00:09:36 - He needs to go out to ISP2 never using ISP1. So what I
+00:09:39 - would do is if I were thinking about this, let me just clear this off,
+00:09:42 - what I would need to do is create an access list that matches
+00:09:48 - this guy, wait a second, no, this guy, Client 1, right? Client 1. Matches him
+00:09:54 - and says anything from him and then I'll use a route map
+00:09:58 - which you just saw on BGP. We talked about route maps. But I'll dive a
+00:10:02 - little bit more into them here. Route map to route anything
+00:10:05 - from that client out to ISP2. So let's bring up the, the
+00:10:09 - security here connection here.
+00:10:12 - Let me bring this into the window and kind of size it up right.
+00:10:16 - Now, first off let me talk about how the GNS3 lab for this looks.
+00:10:21 - I've got, where is it?
+00:10:25 - Where is GNS3?
+00:10:28 - You know, you know when you hit alt+tab and this
+00:10:31 - thing comes out and there are so many things open I can't even
+00:10:34 - tell what's open. You've got, you've got too many windows going. I don't even know.
+00:10:41 - Okay, there it is. It was, again, I'm in Windows 7 where I
+00:10:46 - have so many things minimized. I've got a 30-inch monitor
+00:10:49 - and just so you know, the tiny icons that go across reach about halfway.
+00:10:52 - That means a lot of stuff is open. But anyway, if you're
+00:10:55 - looking at the GNS3 topology, you might go, well, wait a second, that doesn't,
+00:10:59 - it doesn't look like, like that.
+00:11:01 - I mean what's going on? Well, in GNS3, I, I don't like using
+00:11:05 - PCs, you know, and the clouds, all that kind of stuff. I like it
+00:11:08 - to be a little more realistic and testable. So what I did is
+00:11:11 - I set up the policy router to where this is going to be the guy
+00:11:14 - that we do most of our, our, well, all of our work on. I've got
+00:11:17 - ISP1 and ISP2 which are represented by a router that
+00:11:20 - will be able to access and actually see if packets are reaching
+00:11:23 - Client 1 and Client 2 are also routers, but what I did
+00:11:26 - was they turned off routing actually when the global configuration.
+00:11:30 - and typed in no IP routing and gave them a default gateway. So they're,
+00:11:33 - they are acting just like a PC would act but again giving
+00:11:36 - us a command line to where we can do a lot of the testing steps
+00:11:39 - that you can see at bottom of this lab right here. So, so looking
+00:11:43 - at this, this is the logical view. This is more of the physical
+00:11:46 - view of what's really going on.
+00:11:48 - So with that being said, we are going to be spending most
+00:11:51 - of our time on this policy router in the middle. First thing
+00:11:55 - I want to do to accomplish this objective, as I mentioned, is to
+00:11:57 - create an access list that matches Client 1. So watch this.
+00:12:01 - Let me go into global config mode, do IP access list,
+00:12:05 - We'll make an extended one and do Client 1 mainly use and
+00:12:08 - numbered access lists and that's okay I like the name to ones
+00:12:11 - just because it's easier for me to reference and then say you
+00:12:15 - know I was Client 1 it said all of his traffic essentially
+00:12:19 - all traffic from that client should go to ISP2. So what
+00:12:22 - that translates to me is I'm matching everything. I'm going to say permit IP any,
+00:12:26 - well, actually no, not any any. I'm going to say from the source
+00:12:31 - host 192.168.1.20. That's Client 1
+00:12:35 - right there,
+00:12:37 - 192.168.1.20. And I will say you will
+00:12:40 - be going to any destination right. So so what this is doing
+00:12:44 - is matching anything from this guy to any destination. And
+00:12:48 - Now, I haven't said what to do with it so let me just back out right there
+00:12:51 - and now I'm gonna create my route map.
+00:12:54 - I'm going to say route map and let's say, let's just name it POLICY.
+00:12:59 - That will be the name of my route map, and then we'll put in our
+00:13:03 - sequence number and I'll just say 10, sequence number 10.
+00:13:06 - Now, again if you haven't, aren't too familiar with route map, well, I know we use
+00:13:10 - them in the gp but let me just give you the basics overall
+00:13:13 - A route map is really that programming language or scripting language
+00:13:16 - for a router. When I go in and say route map, you know, the
+00:13:20 - name, I put POLICY,
+00:13:22 - and put sequence number 10, essentially that, that is now line number 10
+00:13:27 - of, of this big scripting language. Underneath that I do
+00:13:30 - my if-then statements. I'm going to say if such criteria, then do such criteria.
+00:13:36 - But Cisco doesn't call it if-then. They call it match and set.
+00:13:40 - So I'm really going to say
+00:13:43 - match something and then based on that set something.
+00:13:49 - Now, what I'm looking at here is I'm going to say, well, I want to match anything in the
+00:13:52 - access list Client 1 essentially, matching that Client 1
+00:13:56 - IP address, and then set it in such a way that he routes out
+00:14:00 - ISP2. And there's, there's all kinds of different things
+00:14:03 - that I can set and I'll show you that when you get there. But then I
+00:14:05 - can go down and say, well, now the next sequence. I'll say route map
+00:14:08 - policy 20, you know. Again, it's the same route map,
+00:14:13 - sequence number 20, and then I'd do my match and my set statements
+00:14:17 - underneath that. And I could go on and on and on. As a matter of fact,
+00:14:19 - let me go back here
+00:14:23 - to my policy router. You saw when I did this I can do 65,000
+00:14:26 - sequence numbers which is, is insanely huge.
+00:14:30 - If you don't type any numbers, it automatically increments in,
+00:14:33 - in terms of 10. So it will go 10, 20, 30 and so on and so forth.
+00:14:36 - So I'm underneath policy sequence number 10, and I'm going to
+00:14:40 - say, well I want to match,
+00:14:43 - and you can see right here all these different criteria, match autonomous system path.
+00:14:46 - I mean most of these are related to BGP like communities
+00:14:49 - and different tags, all that kind of stuff. But I'm really
+00:14:53 - interested in matching an IP address. I'll say match IP address.
+00:14:59 - You can see there's my options, IP address number or name,
+00:15:03 - and I'll say the IP address I want to match is defined in the
+00:15:07 - access list Client 1.
+00:15:09 - So I'm saying match that guy. And now that I've said match this, I'm going to say,
+00:15:14 - okay, set.
+00:15:17 - And now you can see I can set all kinds of things like what
+00:15:19 - interface he is going to go out of. I can set, you know, most, again, most of these are
+00:15:23 - related to BGP like the weight, the community, the metric, all,
+00:15:26 - all of those kind of things.
+00:15:28 - In this case, what I want to do,
+00:15:31 - going back to the diagram, is set Client 1, meaning when you match
+00:15:35 - this guy's IP address and he is coming in the policy router, then set
+00:15:39 - it to where he goes to ISP2. Now, there's a few approaches
+00:15:42 - you could take to that like setting the exit interface and so on.
+00:15:45 - I, I always like IP addresses. Anytime I can set an IP address,
+00:15:49 - I'd do it. So I'm going to go in and say I want to set it to route out to
+00:15:53 - ISP2 which is
+00:15:57 - IP next hop to 10 dot,
+00:16:02 - it says IP address of the next hop right here, and ISP2 is, or not 10. What am I thinking?
+00:16:06 - 201.1.1.2.
+00:16:10 - 201.1.1.2. Enter, good.
+00:16:14 - So let me do a show route map just so you can verify what's happening.
+00:16:17 - Notice I've got route map that's called POLICY, sequence
+00:16:21 - number 10, saying match Client 1 in that access we created
+00:16:26 - which said permit all IP traffic from that source of Client 1
+00:16:29 - to any destination. And I'm saying when you see traffic from
+00:16:32 - that guy based on the match, then set it so the IP next hop
+00:16:37 - will be 201.1.1.2 which is ISP2,
+00:16:40 - which if I were looking at these objectives,
+00:16:43 - I would say this objective is now done.
+00:16:46 - Now, now keep in mind the route map can be created
+00:16:49 - but until you apply it it won't take effect. We, we haven't applied it
+00:16:52 - and I won't apply to the end. I'm just going to go piece by piece here.
+00:16:55 - So let's now go to client number 2.
+00:16:59 - It says Client 2 handles sophisticated transactions. Both Telnet
+00:17:03 - and HTTP should go to ISP1, whereas,
+00:17:07 - which is more reliable, all other traffic should
+00:17:10 - go to ISP2. So we're getting a little more specific with
+00:17:14 - our access lists here. So what I'm going to do now is jump back to the
+00:17:18 - policy router.
+00:17:22 - Exit back out here actually, go into global config mode. I'll do IP access list
+00:17:27 - extended Client 2, which is now going to match the Client 2 traffic.
+00:17:33 - Now, from here I'm going to go in and say permit TCP
+00:17:39 - because I'm just matching, again, remember the two things
+00:17:42 - and matching tell than HGTV S as a premier key ECB from the
+00:17:46 - source 192.168.1.21.
+00:17:52 - That's Client 2 right up there, so 21, to
+00:17:55 - we'll say any destination because they weren't specific, so any destination
+00:17:59 - on port number equal to and we'll do 80.
+00:18:05 - No, wait, wait, hang on. Telnet and HTTPS. So 23 and hit the up arrow and do 443.
+00:18:09 - That's HTTPS. So that matches
+00:18:14 - the important traffic from him. So let's exit out of there and,
+00:18:18 - and that's, that's all I'm going to put in that access list for now because now I'm going to go back.
+00:18:22 - because now I'm going to go back. Let me hit the up arrow a few times.
+00:18:24 - There we go, route map policy, and now I'm going to add another sequence number
+00:18:28 - to it. I'll do sequence number 20, essentially the next line
+00:18:32 - in my route map. And I'm gonna say, okay, now I want to
+00:18:35 - match the IP address
+00:18:40 - and we'll put Client 2.
+00:18:43 - That was what I created right there, right? Yup, so Client 2.
+00:18:46 - So now I'm saying when that client is trying to access Telnet
+00:18:50 - or HTTPS, set the IP next hop to be ISP1,
+00:18:59 - 200.1.1.2
+00:19:03 - 200.1.1.2
+00:19:05 - Enter, good. And let me exit out of here and do a show route map.
+00:19:09 - So I'm looking here and I've got sequence 10 for Client 1
+00:19:16 - going to this guy, sequence 20, Client 2 saying, you know, for
+00:19:20 - just that traffic, Telnet and HTTPS, which is defined in that access list,
+00:19:23 - send them to the ISP2, 200.1.1.2.
+00:19:27 - Sweet. So at this point, I would say we've now
+00:19:31 - got this statement done and some of this statement done.
+00:19:35 - I've done this portion. Telnet and HTTPS should go to this guy. All other
+00:19:39 - traffic from Client 2 should route out ISP2.
+00:19:44 - Now, there's a couple of approaches that I would, I would talk through here.
+00:19:49 - First off, we could create another, another access list,
+00:19:54 - maybe called, called CLIENT2_ALL
+00:19:58 - which then matches everything else from
+00:20:02 - Client 2, kind of like a permit IP from, from this source to
+00:20:05 - any destination using all port numbers. And then I could
+00:20:08 - create another statement, you know, it's sequence number 30 in that route map,
+00:20:11 - and say send everything else from, from Client 2
+00:20:15 - out to ISP2. And that would work because, because this route map
+00:20:19 - is processed in order. It's just like an access list. As soon as
+00:20:22 - the router finds a match, it's going to stop processing the route map.
+00:20:25 - So essentially, it would say, okay, are you Client 1? No, you're not Client 1.
+00:20:29 - Okay, then I'm going to go to sequence number 20.
+00:20:31 - Are you Client 2 using Telnet and HTTPS? No. Okay, then I'm going to go to sequence 30
+00:20:36 - and, and then match this and it would router that way. But I want to
+00:20:39 - draw your attention to
+00:20:42 - this line of, of the objectives. It says you can, can accomplish this
+00:20:46 - using no more than two route maps and three access lists.
+00:20:50 - Now, looking at this, this next objective in here,
+00:20:54 - I'm going to need an access list for this to, to accomplish this.
+00:20:58 - Well, that's debatable. I'll say there's multiple
+00:21:02 - ways that you could do this. However, what I, what I would say
+00:21:05 - is this is the approach that I would take when I, if I
+00:21:09 - were going through this. I would look at this next objective where it says
+00:21:12 - traffic from all other clients, not shown in the diagram,
+00:21:15 - should route to ISP2. And then I would look back here and say, okay, all other traffic
+00:21:19 - from Client 2 should go to ISP2. So what I could, what I could think
+00:21:23 - here is when I create the statement for this,
+00:21:27 - that will naturally match client number 2. Because, you know,
+00:21:33 - if it doesn't match this which is the specific access list,
+00:21:36 - then he's going to fall down into this quote unquote all other traffic.
+00:21:39 - Let me show you. I'll, I'll go back to my policy router
+00:21:42 - and I'm going to add
+00:21:45 - a line to my route map. I'm going to do route map policy
+00:21:49 - permit, well, you can type permit or you can just type in 30.
+00:21:54 - Permit is the assumed statement. You can put deny in there but it gets
+00:21:57 - very confusing. So permit 30. And what I'm going to do here, watch this,
+00:22:01 - I'm going to type in set IP next hop address going to
+00:22:08 - 201.1.1.2,
+00:22:12 - 201.1.1.2. Enter.
+00:22:15 - Now, you might look at that and go, okay, what are you matching?
+00:22:21 - Well, here's the key. With a route map, when it comes to route maps, if you
+00:22:24 - match nothing, meaning there is no match statement in there,
+00:22:27 - and I guess let me restate my statement. It's not if you match nothing.
+00:22:31 - If there is no match statement under the policy entry, it matches everything.
+00:22:36 - So check this out. When I do a show route map,
+00:22:39 - you can see that now I have my three sequence numbers, sequence 10,
+00:22:41 - sequence 20, and then sequence 30. 10 and 20
+00:22:44 - have their match statements. They're matching this. Sequence 30
+00:22:47 - has no match clause, and what that means is anything, this, this
+00:22:52 - route map matches anything that did not match sequence
+00:22:55 - 10 and 20. It' going to match this and then go be set
+00:22:59 - to ISP2. So let's, let's go back to our objectives. All other
+00:23:02 - traffic from Client 2 should route out to ISP2.
+00:23:05 - We'll think through this.
+00:23:08 - With this statement, sequence number 20, it's only matching
+00:23:10 - Telnet and HTTPS from Client 2, which means if Client 2
+00:23:14 - does anything else, surfs the web, uses FTP, anything,
+00:23:19 - essentially it's going to get to this sequence number
+00:23:21 - and it's going to say, oh, you don't match. Let's go to the next sequence number.
+00:23:24 - Oh, okay, this matches everything else which means everything else
+00:23:27 - from Client 2 and any other clients and set it to a IP next hop of
+00:23:31 - 201.1.1.2
+00:23:34 - which is
+00:23:36 - ISP number 2, okay.
+00:23:37 - So at this point, I would say once we apply this, all of
+00:23:42 - these first three objectives are done. And what I want to do before
+00:23:45 - we hit this next one because it's a doozy, I want to go through
+00:23:48 - and test this. So before we, before we do this last objective, let's apply
+00:23:52 - it and then test it out. So I'm going to go back to my policy router
+00:23:56 - and apply this. Let me do a show IP interface brief just so you can
+00:24:00 - get the landscape. You can see FastEthernet 0/0.
+00:24:03 - That's the interface that is connected to my internal
+00:24:06 - network, this, this
+00:24:08 - 192.168.1 network right here. You can
+00:24:10 - see is.1. Sure enough there's our.1. Serial 0/0,
+00:24:14 - that's my link to ISP1. Serial 0/1, that's my link to ISP2.
+00:24:18 - So I'm going to go in
+00:24:21 - to global config mode under FastEthernet 0/0
+00:24:24 - and type in IP policy which is going to enable policy-based
+00:24:29 - routing on this interface and I'll say it's going to
+00:24:32 - be applied using the route map and it's asking for the name, POLICY, enter.
+00:24:40 - So you can see now FastEthernet 0/0 as traffic
+00:24:44 - is processed by that interface. As it comes in, it's going to be
+00:24:47 - filtered through that policy route map where you can see all
+00:24:50 - of these different, you know. If it's this guy, if it's this guy, if it's everybody
+00:24:53 - else does this. Good. Okay, so now let's scroll down here to the testing.
+00:24:57 - The way they we're going to test this is by using Telnet
+00:25:01 - sessions from the clients. You can see that first off it says
+00:25:04 - Telnet from Client 1 to ISP2. So again, that's Client 1
+00:25:09 - to ISP2, the lesser of the two ISPs at this IP address.
+00:25:14 - The Telnet session should connect to the ISP router.
+00:25:19 - Likewise, you should be able to verify traffic using the show
+00:25:21 - route map command on the policy router. You can also verify
+00:25:24 - by viewing the logging buffer on ISP2. So let's stop right there. So essentially,
+00:25:29 - if our policy running is working okay, we should be able to
+00:25:32 - Telnet from Client 1 to ISP2 because our policy
+00:25:35 - route says everything from Client 1 should go over to ISP2
+00:25:38 - and we should be able to verify that packets
+00:25:41 - are matching on there. We should see a connect session to ISP2.
+00:25:44 - But also down here, notice here it says performing
+00:25:48 - a Telnet session to ISP1 should fail simply because ISP1
+00:25:51 - and ISP2 have no knowledge of each other. Now, this is where
+00:25:55 - we get back into the lab environment here. These, these are just
+00:25:57 - two routers. I don't have any connection between them nor do
+00:26:00 - they have any routes. So ISP does not, ISP2 does
+00:26:03 - not know about this WAN link between the policy router and ISP1.
+00:26:06 - Likewise, ISP1 does not know about this WAN link between
+00:26:11 - ISP2 and the policy router.
+00:26:14 - So, so kind of have dead end traffic there. So we should be able to do
+00:26:17 - some, some Telnet sessions and test this out. So let's go to client
+00:26:22 - number 1
+00:26:24 - because there's, there's our Client 1. So I'm going to Telnet to,
+00:26:28 - let's first off go to, directly to ISP2 router, 201.1.1.2
+00:26:35 - And sure enough we got an open, now, I don't have a password
+00:26:38 - set on the ISP2 router. That's okay. We still got some
+00:26:41 - traffic to open that session. I should now be able to go over
+00:26:43 - to the policy router and do a show route map.
+00:26:48 - And sure enough you can see right here we now have sequence number 10,
+00:26:51 - 10 packets matching sequence number 10, 606
+00:26:55 - bytes that of have, have come through and connected right there from
+00:26:59 - Client 1 over to the ISP2 router. Now let's, just for grins,
+00:27:03 - let's, let's test it using
+00:27:08 - ISP1, 200.1.1.2 is ISP1.
+00:27:11 - I hit enter and immediately it says destination unreachable.
+00:27:15 - And let's look here
+00:27:17 - and notice we got another, another packet match right here. Let's just hit
+00:27:20 - the upper arrow a couple of times.
+00:27:24 - We get some destination unreachables. There we go. Oop, hit the up arrow.
+00:27:28 - And okay, we see the packet count incrementing as we're trying to do that.
+00:27:33 - the reason it's unreasonable is kyle one's getting shot out
+00:27:36 - here to ISP2 and saying I want to try and access 200.1.1.2
+00:27:40 - and ISP2 is saying I have who you're talking about.
+00:27:44 - And he is dropping the packets sending ICMP unreachables
+00:27:46 - back out. But if I were to maybe connect to
+00:27:51 - the web server on 200.1.1.2, I have, I have the
+00:27:54 - web services running there on Client 1, that should succeed and
+00:27:57 - we should see some packets there. So let's hit the upper arrow. Go back to
+00:28:00 - ISP2 using port 80.
+00:28:04 - Hit enter right there. There we go. I'm connected to the web server.
+00:28:06 - I killed my web server connection. Go back to
+00:28:09 - the policy router and I see a number of packets, 39 packets
+00:28:12 - now matching and reaching the, the ISP2 router
+00:28:16 - policy routing there. Good, good. So we're, we're verified that
+00:28:19 - Client 1 is able to route out and is policy routing to ISP2.
+00:28:23 - Oh, I should also, just for grins,
+00:28:27 - I shoot over to ISP2 and you can see right there I've got my access lists logging.
+00:28:30 - It's seeing packets matching that client. You can see,
+00:28:34 - let me just do a show log.
+00:28:37 - Oh, that's different.
+00:28:39 - There's my two access list entries because I created an access list
+00:28:41 - that matches everything. And you can see ten packets to that guy,
+00:28:45 - six packets down here down here to try and reach ISP2's web services
+00:28:49 - and that failed obviously. So, so it looks like this first test
+00:28:54 - is successful. Let's now drop down right here. It says Telnet from
+00:28:58 - Client 2 to ISP1 using TCP port 23 and
+00:29:03 - 443, and I just put this here if you've never
+00:29:05 - done that before it because remember those are going to be
+00:29:08 - the two that match the policy route and get shot up here to ISP1.
+00:29:11 - That, that should work okay. All other
+00:29:15 - traffics should,
+00:29:18 - should route using the alternate path and we'll talk about that.
+00:29:22 - So let's, actually let's verify this one. Let's verify this
+00:29:25 - one first to make sure that that traffic is routing. So we'll go client number 2
+00:29:29 - and Telnet to ISP1. That would be again IP address
+00:29:35 - 200.1.1.2.
+00:29:40 - We'll just use normal Telnet first. Good. And it looks like we
+00:29:43 - connected to something and it says you're not set. So let's do a show
+00:29:47 - command again here, show route map. Sweet. Now, you can see sequence
+00:29:51 - number 20, Client 2 now has packet matches whereas before
+00:29:55 - up here when I did the show command before there was no matches
+00:29:58 - coming in because we hadn't moved anything yet. So that was our Telnet session.
+00:30:01 - Let's go here and try port 443. There we go.
+00:30:06 - We connected via HTTPS.
+00:30:09 - Verify we're getting more matches. Good. It looks like our 12 packets
+00:30:12 - have now gone up to 18 packets. So that's happening for Client 2
+00:30:16 - going right here. Now, let's, let's try going, let's try going to
+00:30:20 - 200, 201.1.1.2. That's ISP, ISP2
+00:30:25 - using port 80.
+00:30:29 - Hit the upper arrow. Do port 80 to ISP2.
+00:30:33 - And we connected there. There you go. Just type some bad request and then
+00:30:39 - get disconnected. And let's go back and do the show command.
+00:30:42 - Awesome. Take a look. We've got sequence number 20 which
+00:30:45 - has matched no more packets. It's still at 18 packets which it was
+00:30:48 - the last time I did that show command. So obviously something
+00:30:51 - didn't match up. But look at what did get some packet matches, sequence
+00:30:54 - number 30, because previously nothing had matched that.
+00:30:58 - But once I Telnet it said, okay, you are no longer using
+00:31:01 - port 23 or 443 so you no longer match
+00:31:04 - sequence twenty. So the catch-all sequence thirty matches you
+00:31:07 - and to next top of this. Now likewise in the testing. I said
+00:31:11 - I said if you Telnet to ISP2 using port 23
+00:31:15 - or 443, that should fail since that's going to
+00:31:18 - be policy routed to ISP1 who has no knowledge of ISP2.
+00:31:21 - Again, remember, if I try to Telnet to this guy,
+00:31:25 - it shouldn't work because the policy route shoots them up here and ISP1
+00:31:27 - doesn't know how to get to ISP2. So let's just double verify that.
+00:31:30 - Hit the upper arrow and let's just Telnet to ISP2.
+00:31:35 - And sure enough we're denied because again,
+00:31:40 - well, it's not that we're denied. It's just matching, there's my three attempts right there.
+00:31:44 - We went from 18 to 21. It's just matching
+00:31:47 - sequence number 20 getting shot up to ISP1 who has
+00:31:50 - no knowledge of how to get back to ISP2 and he's dropping the packet.
+00:31:53 - So good, good, good. We've now got
+00:31:57 - these, all these statements tested right here from
+00:32:01 - Client 1 and Client 2. Now, let's go to the different one, the difficult one.
+00:32:05 - Traffic originating from the policy routing, so originating.
+00:32:10 - It's not coming from a client. It's saying this guy who's originating some traffic
+00:32:14 - should prefer ISP1 but should fail over to ISP2
+00:32:18 - if ISP1 is down but you should verify ISP1
+00:32:22 - is available using proactive testing techniques.
+00:32:26 - Now, there's a few ways that you could, you could approach this scenario.
+00:32:29 - I'm, I'm going to show you one of them and the one that, that I would
+00:32:31 - be after right here. What we're going to do is we're going to use a
+00:32:35 - route map.
+00:32:36 - However, we're going to tie it to IPSLA.
+00:32:42 - IPSLA is awesome. It's the piece of proactive testing that, that
+00:32:46 - you need in so many environments. And I'm going to show you simple IPSLA here.
+00:32:50 - And by the way, chances are, as I think I mentioned before,
+00:32:54 - you will not see IPSLA on the exam. So this is just for fun.
+00:32:58 - But it is awesome and I know you're going to see this and
+00:33:00 - see a million different uses for it. So what IPSLA does
+00:33:04 - is allow this guy to be a little mini line tester to where you
+00:33:09 - get to define probes. You get to say I want a send some probes out to ISP1
+00:33:13 - maybe once every three seconds or 20 seconds
+00:33:17 - or a hundred seconds, maybe some ping messages, maybe, maybe
+00:33:20 - some TCP connect traffic. You could even test connecting
+00:33:23 - to a web server like Google.com or something like that through
+00:33:26 - ISP1 and make sure that it's running, you know, using
+00:33:29 - TCP port 80. So all of these are proactive tests that the router is
+00:33:33 - running every X amount of seconds that you get to define.
+00:33:36 - And if those tests fail, it would then consider this guy unreachable
+00:33:40 - and then maybe try the next route. Now, you can attach these probes
+00:33:43 - and the responses to static routes. You can attach them and, and
+00:33:47 - monitor them using a monitoring system. You can attach them
+00:33:50 - using policy routing.
+00:33:53 - So all of those are valid ways that you can use this. So let me show you
+00:33:55 - how to set this up. Again, I'm just going to go command line on this,
+00:33:58 - this guy. First I'm going to go into global config mode and I need to
+00:34:02 - define the probe.
+00:34:04 - The way I do that is type in IPSLA. It used to be called IPRTR,
+00:34:07 - the round-trip responder or real-time responder, something
+00:34:12 - like that. That was old name. Now it's called IPSLA, service
+00:34:14 - level agreement. So I'm going to do ISPLA monitor,
+00:34:19 - hit the question mark, and you can see right here I have a bunch of options.
+00:34:22 - What I'm going to do is I'm going to create an SLA probe. And you can see I
+00:34:26 - can create oh, two billion probes, but I'm just going to say this
+00:34:29 - is probe number 1. He comes in says, okay, hit the enter key.
+00:34:33 - Now, underneath here I get to say, well, here's what type of probe this is.
+00:34:38 - I'm going to do a type and we'll just say, and you can see down the list I can do
+00:34:41 - HTTP connects. I could do downloads of files. I could do Frame Relay tests.
+00:34:45 - I could do
+00:34:46 - echoes which is an echo operation which is what I plan
+00:34:51 - on doing right here. You can see path echo or echo.
+00:34:54 - I can do DNS test, DHCP test, all kinds of different things.
+00:34:57 - I'm just going to keep it simple. I want to make sure ISP1 is up.
+00:35:00 - So I'll do type echo,
+00:35:03 - protocol IP ICMP echo. So this is just an echo, you know.
+00:35:07 - I'm going to ping the other guy with an echo response. It says, well, who are
+00:35:10 - you going to ping? And I'm going to say, well, I want to send it to 200.1.1.2.
+00:35:14 - That's ISP1,
+00:35:20 - ISP1, and you can see what source interface. I'm just going to
+00:35:22 - leave that all at default because it's going to look at
+00:35:24 - its routing table and say, well, how do I get to, you know,
+00:35:27 - 200.1.1.2? And it's going to find the connected interface. So I'll hit enter right there.
+00:35:31 - Then it comes out and it says, well, what, what specifics about this? You can, you know,
+00:35:35 - you can say, well, I want to set the time out, you know.
+00:35:38 - When I send a ping, I want to make sure that I hear back in one second.
+00:35:41 - No more late than one second. Otherwise, I'd consider it dropped.
+00:35:44 - And you can set all your specifics and I'll say, you know, the frequency.
+00:35:48 - I'm going to send a ping once every
+00:35:50 - let's say three seconds. Again, down this list, you know, what
+00:35:54 - type of service, what's your threshold for timeouts.
+00:35:58 - All of these things are customizable. For now I'm just keeping it at the basics.
+00:36:03 - It back out there and they now have might prove defines as
+00:36:06 - Now, the way this works, the way SLA works is you can define
+00:36:09 - probes all day long. You know, I can say, okay, I've got SLA probe 1,
+00:36:13 - probe 2, probe 3. But until use you schedule them to run
+00:36:17 - and then attach then to what's called a track object,
+00:36:23 - it's not going to do anything.
+00:36:24 - So the probes can run all day and you can, I mean you can
+00:36:27 - set up monitoring using a program like, oh, and I love this program,
+00:36:30 - PRTG.
+00:36:33 - I will, I will preach that program all day and I get no kickback
+00:36:36 - from them. It's just I would check it out. They have a free
+00:36:39 - version available for like 20 sensors. It's, it's an amazing network
+00:36:42 - monitoring program. So anyway, I, I, I use PRTG. I can get status
+00:36:46 - from that and graph it over time saying, okay, my, my pings were
+00:36:50 - getting this, this return rate and all of that over time. But essentially,
+00:36:54 - assigning it to a track object allows you to say, okay, I want to use
+00:36:58 - that and, you know, say, well, if this SLA probe fails, then
+00:37:01 - do something about it. So let me, let me show that to you. First off I'm going to go in
+00:37:05 - and I'm going to say IPSLA. I need to say monitor. I need to schedule
+00:37:09 - it to run. I'm going to say schedule probe number 1, the guy that I
+00:37:14 - just configured. I can't remember if that was where I went up here and defined
+00:37:17 - the probe type and all that. So probe number 1 is going to run.
+00:37:21 - Let's, let's go ahead and have, give him a start time of how about now?
+00:37:25 - How about now? Right. And then I'm going to say the lifetime of
+00:37:29 - this is going to be, I love forever. It is eternal.
+00:37:34 - So I, I have start time forever. So right now my probe
+00:37:38 - is now running. I'm now pinging the ISP1 once every
+00:37:42 - three seconds. But, you know, to actually use that in my,
+00:37:46 - in my policy route, I'm going to need to go in and say I'm going to define
+00:37:49 - a track object
+00:37:52 - and then say a track object. So this will be track object number 1.
+00:37:55 - Again, it doesn't have to match, you know, this number. This is just my track
+00:37:59 - object number. And you'll, you'll see it right here. What do you want to track?
+00:38:02 - Do you want to track a, you know, the IP protocol? Do you want to track an interface?
+00:38:06 - Like if an interface goes down like you know. If interface, you know,
+00:38:09 - serial 0/0 goes down, you know, then, you know, line
+00:38:14 - protocol goes down and do something about it. And this, this would
+00:38:17 - be another approach I could take outside of a probe.
+00:38:20 - But let's say I want to track and create my track object 1.
+00:38:23 - And this is kind of funny.
+00:38:25 - We, we've, we're defining an SLA probe which is the new name,
+00:38:30 - and they're using the old name for the track object.
+00:38:33 - It used to be called respond, respond. I was way off. I said real-time responder
+00:38:37 - or something like that. It's a response time reporter. That's what it used to be called
+00:38:41 - before they renamed it IPSLA. So I'm going to say response the R,
+00:38:44 - track the RTR 1 which points it to SLA probe number 1.
+00:38:48 - Now again, I'm sure someday an IOS whatever, they're
+00:38:52 - going to rename this to track SLA 1 but for now it's the old name.
+00:38:56 - And it says, you know, what do you want to track about that?
+00:38:58 - Do want to do to reachability, the state, the state of that
+00:39:02 - probe or whatever? Do you just want to track it? Like when it goes down,
+00:39:06 - And you know and then it's no longer available in this a track
+00:39:10 - to reach ability making. Sure that I'm able to reach those
+00:39:13 - things. I there and you can see track objects taking going
+00:39:16 - do tracking delays. Like if that goes down, the tracking object won't report it
+00:39:20 - for a certain amount of time. But I'm not going to define any of that.
+00:39:22 - Again, remember, I'm showing you this at a 10,000-foot view.
+00:39:25 - I would highly encourage you, if this is all at all interesting to you,
+00:39:29 - to go to Google and type in IPSLA space Cisco, and you will
+00:39:34 - get, Cisco's documentation shows you all of these different parameters
+00:39:37 - that you can define for it. But now let me show you how we can
+00:39:40 - assign this to a route map.
+00:39:42 - A couple of things here.
+00:39:44 - First off define another route that is it is applying to the
+00:39:47 - router itself. Remember objectives. This is saying traffic
+00:39:50 - originating from the policy rather so this is independent from
+00:39:53 - stuff going through the router. This is stuff coming from the router.
+00:39:57 - So I'm going to go in and I'm going to say route map.
+00:40:00 - And we'll name it, this is, we'll just say router traffic,
+00:40:06 - and I'll just do permit 10, sequence number 10. And I'm going to
+00:40:09 - say no, well, let's see. Do I need to, hmm,
+00:40:15 - how should I do this here?
+00:40:18 - There's a few ways I could approach this. I could, I could do no match statement,
+00:40:23 - which matches everything. Actually, why don't I approach that? It wasn't how
+00:40:27 - I planned it. Let me just do a, I'm talking to myself guys. This is inner
+00:40:31 - monologue that you are hearing so. And I just like you're.
+00:40:34 - Okay, so I've got an access list. I feel better doing this it this way.
+00:40:38 - did this when they do idea access lists.
+00:40:41 - and the only reason I'm doing this is because they said use
+00:40:44 - no more than three access lists. So I, I want to use my three. So I'm going to say
+00:40:49 - they idea access lists. This is extended and will call it router.
+00:40:53 - And I'll say from.
+00:40:55 - I P from any source in the destination essentially match all
+00:40:58 - which again I could have left and you know the match statement
+00:41:01 - off and would have done the same thing let me go back under
+00:41:04 - my router traffic, shish kemebab,
+00:41:06 - She's from she's come about my my route map now say match.
+00:41:10 - Ikea address router which is this access was measures everything.
+00:41:15 - On say. Said.
+00:41:19 - VIP next hop. On question right there in the remember what
+00:41:23 - was our objectives? It said the,
+00:41:26 - the router should prefer ISP1 but fail over to
+00:41:30 - ISP2 if ISP 1 is, is down. So here's, here's where it gets sophisticated.
+00:41:35 - going to my policy rather notice. I said so that the next hop
+00:41:38 - But before I type in the IP address, I'm going to do verify availability.
+00:41:44 - This is where it gets a little bizarre. Check this out. I'm going to say verify availability.
+00:41:47 - It says, okay, well, what do you want to verify the, the availability of?
+00:41:50 - Well, that's going to be ISP2 or ISP1, 200.1.1.2.
+00:41:55 - Okay, so I want to check ISP1. That's their IP address.
+00:42:01 - And now I hit the question mark and it says, okay, now what subsequence number do
+00:42:05 - you want insert in this next hop list?
+00:42:09 - And everybody said. Was so here's the way it works. I did find
+00:42:14 - route map
+00:42:16 - sequence number 10. And underneath that I said match, essentially match all,
+00:42:20 - match everything, and set the next hop, I'll put next hop, to
+00:42:27 - 200.1.1.2. Squeeze it in there.
+00:42:30 - But then I said verify reachability. So what it did was it says, okay,
+00:42:34 - then you're having a next hop subsequence number.
+00:42:38 - Essentially you now have 65,000 subsequence numbers that
+00:42:42 - you can use for next hops.
+00:42:45 - Sorry if my writing is getting crunched over here. So what I could do is I could say,
+00:42:47 - okay, next hop 1 under this, this route map sequence number
+00:42:51 - is this guy. Next hop 2 is this guy. Next top 3 is this guy.
+00:42:56 - So essentially I could have one statement saying match everything,
+00:42:58 - try this one first, that one next, that one next, that one next, that one.
+00:43:01 - You know, you could go down the list.
+00:43:04 - And everybody said, huh? Well, that, that is just the way it works, okay.
+00:43:08 - You go in and you set this sequence number which is just for
+00:43:11 - the next hop kind of little sublist. So I'll just say sequence number 10
+00:43:16 - right here and then it says, okay, well, what do you want to do based
+00:43:19 - on the availability? And notice right here it's saying tracking objects.
+00:43:22 - So I'm going to say track object number 1, which is this guy right here,
+00:43:27 - the track object. So put track 1, hit the question mark and
+00:43:31 - you can see. Hit enter.
+00:43:34 - Wow. Let me just do a show route map real quick.
+00:43:39 - Notice right here we've got route map router traffic, you know.
+00:43:42 - This is now a route map totally separate from this guy. Route map router
+00:43:46 - traffic permit 10. It says match everything, essentially this router
+00:43:49 - access list, set it to this next hop to this guy, and it's
+00:43:54 - currently tracking as up. Huh.
+00:43:58 - So notice it's, it's looking at the track object and it's currently
+00:44:01 - showing ISP1 is up so we, we're verifying that right there.
+00:44:04 - So now let me add another one here and I'll say set IP next
+00:44:09 - hop to.
+00:44:11 - Now, here's a couple of approaches I could take. I could create another probe,
+00:44:17 - another SLA probe saying track ISP 2 and see if it's online.
+00:44:22 - But you know what, I would say that would be more work than I
+00:44:24 - need to do right now because essentially the only reason I
+00:44:27 - wanted to fail over to ISP2 is if ISP1 is down.
+00:44:31 - I'm no longer able to ping ISP1. So if ISP2 is down as well,
+00:44:35 - then hey, we're totally down right now whether I'm tracking it or not.
+00:44:38 - Do you see what I mean now? So essentially I'm
+00:44:42 - saying why would I track this guy if the only reason I would
+00:44:44 - fail over is if ISP1 is down? And if this guy is down then we're
+00:44:48 - down anyway so there's no reason to track them. So that being
+00:44:51 - said, you could define another track object and, and, you know,
+00:44:54 - get bonus points, but for now I'm just going to say we'll just
+00:44:57 - set the next hop to 201.1.1.2
+00:45:02 - which is
+00:45:03 - ISP2.
+00:45:05 - Now, you notice it, it doesn't ask me for any subsequence numbers
+00:45:08 - or anything like that because when I do this, let me go back
+00:45:12 - and do a show route map, notice it automatically puts this guy
+00:45:17 - after this guy, okay.
+00:45:20 - Because since he is a subsequence number, he is considered more
+00:45:23 - valuable essentially than one without a subsequence number.
+00:45:27 - And again, I, I know this is, this is weird. And, and right about now, I'm like,
+00:45:30 - you know what, this is probably too sophisticated for route. This is probably
+00:45:33 - like CCIE stuff but, but you all want to be CCIEs, right? You should.
+00:45:39 - So, so that's where this objective is. So this is truly the
+00:45:42 - bonus point credit at this point, but it's pretty neat. So okay. So at
+00:45:46 - this point, we've created the route map, right?
+00:45:49 - But it's not applied. It's, you know, it's testing, it's doing all
+00:45:52 - this stuff, but it's not applied. How do you apply it to the
+00:45:55 - router itself? Because that's not applied to an interface. Well, there is a special command
+00:46:00 - from global config mode. You can actually type in IP local policy.
+00:46:06 - Notice it says enable policy routing. This is again
+00:46:09 - for the local router based on the route map
+00:46:13 - router traffic.
+00:46:17 - And now this guy applies to the router as a whole. It's the
+00:46:20 - local policy for the router.
+00:46:23 - Good. So now let's check out the tests here. Let me scroll this up,
+00:46:27 - scroll up Adobe Acrobat a little bit.
+00:46:30 - It says to test traffic originating from the router, issue pings
+00:46:34 - to ISP1. These should succeed. Then ping ISP2.
+00:46:38 - These should fail. And again, the reason why is as long as ISP1
+00:46:41 - is online, the router should say I'm sending everything right
+00:46:44 - here because I have a local policy to do that. And ISP1
+00:46:47 - does not know how to reach ISP2. So if I ping ISP2, it should
+00:46:51 - not work. So let's try that. Let me go back to my policy router.
+00:46:55 - Exit back out. Let's ping ISP2. Ping 200.1.1.2.
+00:46:58 - That's ISP1. Good, we've got success. Let me do a show route map.
+00:47:03 - Oh, notice we've got 20 packets already routing
+00:47:08 - or matching that route map. Let's just do another ping just to, oop,
+00:47:13 - just to see that, that increment. We now got 29 packets going there. Good.
+00:47:17 - So we're now, we're now matching that router route map. Now, let
+00:47:20 - me hit the up arrow and try pinging router or ISP2.
+00:47:25 - Sure enough that fails. Let me break out of that. But I should still see
+00:47:29 - some increments down here because, because it's, it's trying
+00:47:32 - to send pings. They're just not going through. So good.
+00:47:35 - So now, let's look at the rest of the tests. It says,
+00:47:40 - okay, shut down
+00:47:42 - the interface to ISP1 and then ping ISP2,
+00:47:46 - and the ping should succeed.
+00:47:48 - Hmm, and the reason why is because that route map at that point will
+00:47:51 - detect that the track objects has failed, thus making this guy unavailable
+00:47:56 - so now it should set the next hop to ISP2. Let's check it out.
+00:47:59 - We'll terminate that interface
+00:48:05 - and let's do a show route map now.
+00:48:07 - Okay, it looks like the track object hasn't detected it
+00:48:10 - yet because, oop, there we go. Look at that. Tracking state, RTR 1,
+00:48:14 - reachability just went down. So we hit the route map. Again, remember,
+00:48:17 - it only sends a ping once every three seconds. So it took a little
+00:48:19 - bit to detect the failure. So now we're showing as down. So now when
+00:48:24 - I go up and ping ISP2, now we're working and now we're
+00:48:28 - again still seeing matches on the route map because we're, we're
+00:48:31 - failing over to this guy. The pings to ISP1 should completely
+00:48:35 - fail not only because the interface is down but because
+00:48:37 - ISP2
+00:48:39 - doesn't, doesn't have a route back.
+00:48:43 - Yeah, we're seeing ICMP unreachable messages coming back there.
+00:48:45 - Good. So that, that is the more complex than I thought
+00:48:50 - it would be but pretty sweet way that we can use policy routing
+00:48:54 - to route those packets through.
+00:48:57 - So do you want hear another story? Just kidding. I won't do
+00:49:00 - that to you. We have taken it long enough to show path control and
+00:49:04 - the power that there is in that. And at this point, you can probably see
+00:49:07 - there's, there's a lot that you're able to do with path control.
+00:49:10 - You can essentially forward anything to anywhere based on whatever
+00:49:13 - criteria you want. Very useful if you have those specific circumstances
+00:49:19 - where it's like, ah, well, they, that group needs to go that way.
+00:49:22 - How do we do that apart from adjusting the routing table as
+00:49:25 - a whole? That's where policy routing and path control can really
+00:49:28 - come into play. Well, I hope this has all been informative for you
+00:49:31 - and I'd like to thank you for viewing.
